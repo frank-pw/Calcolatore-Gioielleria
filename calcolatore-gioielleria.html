@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcolatore Gioielleria</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #324e2a;
+      --surface: #ffffff;
+      --surface2: #f0eeea;
+      --text: #1a1a18;
+      --text2: #6b6a66;
+      --text3: #9e9d99;
+      --border: rgba(0,0,0,0.1);
+      --accent: #324e2a;
+      --accent-bg: #e8f0fe;
+      --accent-text: #1a4fbb;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 0.5px solid var(--border);
+      padding: 2rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 1.75rem;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+
+    .metal-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text2);
+      transition: all 0.15s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: var(--surface);
+      border-color: var(--accent);
+    }
+
+    .field {
+      margin-bottom: 1rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 5px;
+    }
+
+    .field label span {
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    .field input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus {
+      border-color: var(--text2);
+    }
+
+    .field input::placeholder {
+      color: var(--text3);
+    }
+
+    .divider {
+      border: none;
+      border-top: 0.5px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    .placeholder {
+      text-align: center;
+      padding: 2rem 0;
+      color: var(--text3);
+      font-size: 14px;
+    }
+
+    .formula-box {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 1.25rem;
+    }
+
+    .piece-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      overflow-wrap: anywhere;
+    }
+
+    .formula-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 7px;
+      flex-wrap: wrap;
+    }
+
+    .formula-row:last-child { margin-bottom: 0; }
+
+    .formula-row .val { color: var(--text); font-weight: 500; }
+    .formula-row .op { color: var(--text3); }
+
+    .formula-row.total {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .formula-row.total .result {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+
+    .metric.highlight {
+      background: var(--accent-bg);
+      grid-column: span 2;
+    }
+
+    .metric .mlabel {
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 4px;
+    }
+
+    .metric.highlight .mlabel {
+      color: var(--accent-text);
+      opacity: 0.8;
+    }
+
+    .metric .mval {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .metric.highlight .mval {
+      font-size: 24px;
+      color: var(--accent-text);
+    }
+
+    .actions {
+      margin-top: 12px;
+    }
+
+    .primary-btn, .ghost-btn {
+      width: 100%;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--border);
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+
+    .primary-btn {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .ghost-btn {
+      background: transparent;
+      color: var(--text2);
+    }
+
+    .primary-btn:hover, .ghost-btn:hover {
+      opacity: 0.85;
+    }
+
+    .history {
+      margin-top: 1.5rem;
+    }
+
+    .history-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .history-head .section-label {
+      margin-bottom: 0;
+    }
+
+    .history-head button {
+      border: none;
+      background: transparent;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 0;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-empty {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      color: var(--text3);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .history-item {
+      width: 100%;
+      text-align: left;
+      background: var(--surface2);
+      border: 0.5px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .history-item:hover {
+      border-color: var(--border);
+    }
+
+    .history-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .history-name {
+      font-size: 14px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .history-total {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      color: var(--accent-text);
+    }
+
+    .history-meta {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.45;
+    }
+
+    .calculator {
+      margin-top: 1.5rem;
+    }
+
+    .calc-display {
+      width: 100%;
+      min-height: 58px;
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      border: 0.5px solid var(--border);
+      color: var(--text);
+      font-size: 30px;
+      font-weight: 600;
+      text-align: right;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .calc-keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .calc-key {
+      min-height: 46px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .calc-key:hover {
+      border-color: var(--text2);
+    }
+
+    .calc-key.operator {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .calc-key.muted {
+      color: var(--text2);
+    }
+
+    .calc-key.wide {
+      grid-column: span 2;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      font-size: 11px;
+      color: var(--text3);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Calcolatore Gioielleria</h1>
+    <p class="subtitle">Inserisci il prezzo dal sito Kitco</p>
+
+    <p class="section-label">Metallo</p>
+    <div class="metal-tabs">
+      <button class="tab active" onclick="setMetal('ottone', this)">Ottone</button>
+      <button class="tab" onclick="setMetal('argento', this)">Argento</button>
+      <button class="tab" onclick="setMetal('oro', this)">Oro</button>
+    </div>
+
+    <div class="field">
+      <label for="nome-pezzo">Nome pezzo</label>
+      <input type="text" id="nome-pezzo" placeholder="es. Anello chevalier" autocomplete="off" oninput="calc()" />
+    </div>
+
+    <div class="field">
+      <label for="peso-cera">Peso cera (g)</label>
+      <input type="number" id="peso-cera" placeholder="es. 5.20" step="0.01" min="0" inputmode="decimal" oninput="calc()" />
+    </div>
+
+    <div class="field">
+      <label for="costo-grammo">Costo metallo (€/g) <span>— valore Ask da Kitco</span></label>
+      <input type="number" id="costo-grammo" placeholder="es. 0.850" step="0.001" min="0" inputmode="decimal" oninput="calc()" />
+    </div>
+
+    <hr class="divider" />
+
+    <div id="results-area" style="display:none">
+      <p class="section-label">Calcoli</p>
+      <div class="formula-box">
+        <div id="piece-name-result" class="piece-name" style="display:none"></div>
+        <div class="formula-row">
+          <span>Peso metallo</span><span class="op">=</span>
+          <span id="f-cera" class="val">—</span>
+          <span class="op">×</span>
+          <span id="f-molt" class="val">—</span>
+          <span class="op">=</span>
+          <span id="f-pm" class="val">—</span>
+        </div>
+        <div class="formula-row">
+          <span>Costo fuso</span><span class="op">=</span>
+          <span id="f-pm2" class="val">—</span>
+          <span class="op">×</span>
+          <span id="f-cg" class="val">—</span>
+          <span class="op">=</span>
+          <span id="f-fuso" class="val">—</span>
+        </div>
+        <div class="formula-row">
+          <span>Manodopera</span><span class="op">=</span>
+          <span id="f-pm3" class="val">—</span>
+          <span class="op">×</span>
+          <span class="val">0,40 €/g</span>
+          <span class="op">=</span>
+          <span id="f-mano" class="val">—</span>
+        </div>
+        <div class="formula-row total">
+          <span>Costo finale</span><span class="op">=</span>
+          <span id="f-fuso2" class="val">—</span>
+          <span class="op">+</span>
+          <span id="f-mano2" class="val">—</span>
+          <span class="op">=</span>
+          <span id="f-finale" class="result">—</span>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <div class="metric">
+          <div class="mlabel">Peso metallo</div>
+          <div class="mval" id="r-pm">—</div>
+        </div>
+        <div class="metric">
+          <div class="mlabel">Costo fuso</div>
+          <div class="mval" id="r-fuso">—</div>
+        </div>
+        <div class="metric">
+          <div class="mlabel">Manodopera</div>
+          <div class="mval" id="r-mano">—</div>
+        </div>
+        <div class="metric highlight">
+          <div class="mlabel">Costo finale</div>
+          <div class="mval" id="r-finale">—</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="primary-btn" onclick="saveHistory()">Salva nello storico</button>
+      </div>
+    </div>
+
+    <div id="placeholder" class="placeholder">
+      Inserisci peso e costo per calcolare
+    </div>
+
+    <div class="history">
+      <div class="history-head">
+        <p class="section-label">Storico ultimi 20</p>
+        <button type="button" id="clear-history" onclick="clearHistory()" style="display:none">Svuota</button>
+      </div>
+      <div id="history-list" class="history-list"></div>
+    </div>
+
+    <div class="calculator">
+      <p class="section-label">Calcolatrice</p>
+      <div id="calc-display" class="calc-display">0</div>
+      <div class="calc-keys">
+        <button type="button" class="calc-key muted" onclick="calculatorClear()">AC</button>
+        <button type="button" class="calc-key muted" onclick="calculatorBackspace()">⌫</button>
+        <button type="button" class="calc-key muted" onclick="calculatorPercent()">%</button>
+        <button type="button" class="calc-key operator" onclick="calculatorChoose('/')">÷</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('7')">7</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('8')">8</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('9')">9</button>
+        <button type="button" class="calc-key operator" onclick="calculatorChoose('*')">×</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('4')">4</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('5')">5</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('6')">6</button>
+        <button type="button" class="calc-key operator" onclick="calculatorChoose('-')">−</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('1')">1</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('2')">2</button>
+        <button type="button" class="calc-key" onclick="calculatorInput('3')">3</button>
+        <button type="button" class="calc-key operator" onclick="calculatorChoose('+')">+</button>
+        <button type="button" class="calc-key wide" onclick="calculatorInput('0')">0</button>
+        <button type="button" class="calc-key" onclick="calculatorDecimal()">,</button>
+        <button type="button" class="calc-key operator" onclick="calculatorEquals()">=</button>
+      </div>
+    </div>
+
+    <p class="footer">Manodopera fissa: 0,40 €/g &nbsp;·&nbsp; Ottone ×10 &nbsp;·&nbsp; Argento ×10,8 &nbsp;·&nbsp; Oro ×16,5</p>
+  </div>
+
+  <script>
+    const MOLTIPLICATORI = { ottone: 10, argento: 10.8, oro: 16.5 };
+    const MANODOPERA = 0.40;
+    const HISTORY_KEY = 'calcolatoreGioielleriaStorico';
+    const HISTORY_LIMIT = 20;
+    let metallo = 'ottone';
+    let currentCalc = null;
+    let calculatorValue = '0';
+    let calculatorStored = null;
+    let calculatorOperator = null;
+    let calculatorShouldReset = false;
+
+    function setMetal(m, btn) {
+      metallo = m;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      calc();
+    }
+
+    function fmtE(n) { return n.toFixed(2).replace('.', ',') + ' €'; }
+    function fmtG(n) { return n.toFixed(3).replace('.', ',') + ' g'; }
+
+    function getHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function setHistory(items) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+    }
+
+    function metalLabel(value) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function formatDate(value) {
+      return new Intl.DateTimeFormat('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(value));
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function fmtCalculator(n) {
+      if (!Number.isFinite(n)) return 'Errore';
+      const rounded = Number.parseFloat(n.toFixed(10));
+      return String(rounded).replace('.', ',');
+    }
+
+    function parseCalculatorValue(value) {
+      return parseFloat(String(value).replace(',', '.'));
+    }
+
+    function updateCalculatorDisplay() {
+      document.getElementById('calc-display').textContent = calculatorValue;
+    }
+
+    function calculatorInput(value) {
+      if (calculatorShouldReset || calculatorValue === '0' || calculatorValue === 'Errore') {
+        calculatorValue = value;
+        calculatorShouldReset = false;
+      } else {
+        calculatorValue += value;
+      }
+      updateCalculatorDisplay();
+    }
+
+    function calculatorDecimal() {
+      if (calculatorShouldReset || calculatorValue === 'Errore') {
+        calculatorValue = '0,';
+        calculatorShouldReset = false;
+      } else if (!calculatorValue.includes(',')) {
+        calculatorValue += ',';
+      }
+      updateCalculatorDisplay();
+    }
+
+    function calculatorClear() {
+      calculatorValue = '0';
+      calculatorStored = null;
+      calculatorOperator = null;
+      calculatorShouldReset = false;
+      updateCalculatorDisplay();
+    }
+
+    function calculatorBackspace() {
+      if (calculatorShouldReset || calculatorValue === 'Errore') {
+        calculatorClear();
+        return;
+      }
+      calculatorValue = calculatorValue.length > 1 ? calculatorValue.slice(0, -1) : '0';
+      updateCalculatorDisplay();
+    }
+
+    function calculatorPercent() {
+      calculatorValue = fmtCalculator(parseCalculatorValue(calculatorValue) / 100);
+      updateCalculatorDisplay();
+    }
+
+    function calculatorApply(a, b, operator) {
+      if (operator === '+') return a + b;
+      if (operator === '-') return a - b;
+      if (operator === '*') return a * b;
+      if (operator === '/') return b === 0 ? NaN : a / b;
+      return b;
+    }
+
+    function calculatorChoose(operator) {
+      const input = parseCalculatorValue(calculatorValue);
+
+      if (calculatorOperator && !calculatorShouldReset) {
+        const result = calculatorApply(calculatorStored, input, calculatorOperator);
+        calculatorValue = fmtCalculator(result);
+        calculatorStored = result;
+      } else {
+        calculatorStored = input;
+      }
+
+      calculatorOperator = operator;
+      calculatorShouldReset = true;
+      updateCalculatorDisplay();
+    }
+
+    function calculatorEquals() {
+      if (!calculatorOperator || calculatorStored === null) return;
+
+      const input = parseCalculatorValue(calculatorValue);
+      const result = calculatorApply(calculatorStored, input, calculatorOperator);
+      calculatorValue = fmtCalculator(result);
+      calculatorStored = null;
+      calculatorOperator = null;
+      calculatorShouldReset = true;
+      updateCalculatorDisplay();
+    }
+
+    function calc() {
+      const nomePezzo = document.getElementById('nome-pezzo').value.trim();
+      const cera = parseFloat(document.getElementById('peso-cera').value);
+      const costoG = parseFloat(document.getElementById('costo-grammo').value);
+      const area = document.getElementById('results-area');
+      const ph = document.getElementById('placeholder');
+      const nomeRisultato = document.getElementById('piece-name-result');
+
+      if (!cera || !costoG || cera <= 0 || costoG <= 0) {
+        currentCalc = null;
+        area.style.display = 'none';
+        ph.style.display = 'block';
+        return;
+      }
+
+      const molt = MOLTIPLICATORI[metallo];
+      const pm = cera * molt;
+      const fuso = pm * costoG;
+      const mano = pm * MANODOPERA;
+      const finale = fuso + mano;
+
+      currentCalc = {
+        nome: nomePezzo,
+        metallo,
+        cera,
+        costoG,
+        molt,
+        pm,
+        fuso,
+        mano,
+        finale
+      };
+
+      nomeRisultato.textContent = nomePezzo;
+      nomeRisultato.style.display = nomePezzo ? 'block' : 'none';
+
+      document.getElementById('f-cera').textContent = fmtG(cera);
+      document.getElementById('f-molt').textContent = molt;
+      document.getElementById('f-pm').textContent = fmtG(pm);
+      document.getElementById('f-pm2').textContent = fmtG(pm);
+      document.getElementById('f-cg').textContent = costoG.toFixed(3).replace('.', ',') + ' €/g';
+      document.getElementById('f-fuso').textContent = fmtE(fuso);
+      document.getElementById('f-pm3').textContent = fmtG(pm);
+      document.getElementById('f-mano').textContent = fmtE(mano);
+      document.getElementById('f-fuso2').textContent = fmtE(fuso);
+      document.getElementById('f-mano2').textContent = fmtE(mano);
+      document.getElementById('f-finale').textContent = fmtE(finale);
+
+      document.getElementById('r-pm').textContent = fmtG(pm);
+      document.getElementById('r-fuso').textContent = fmtE(fuso);
+      document.getElementById('r-mano').textContent = fmtE(mano);
+      document.getElementById('r-finale').textContent = fmtE(finale);
+
+      area.style.display = 'block';
+      ph.style.display = 'none';
+    }
+
+    function saveHistory() {
+      if (!currentCalc) return;
+
+      const item = {
+        ...currentCalc,
+        id: Date.now(),
+        createdAt: new Date().toISOString()
+      };
+
+      setHistory([item, ...getHistory()]);
+      renderHistory();
+    }
+
+    function loadHistoryItem(id) {
+      const item = getHistory().find(entry => entry.id === id);
+      if (!item) return;
+
+      metallo = item.metallo;
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.toggle('active', tab.textContent.trim().toLowerCase() === metallo);
+      });
+      document.getElementById('nome-pezzo').value = item.nome || '';
+      document.getElementById('peso-cera').value = item.cera;
+      document.getElementById('costo-grammo').value = item.costoG;
+      calc();
+    }
+
+    function clearHistory() {
+      if (!confirm('Vuoi svuotare lo storico?')) return;
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = getHistory();
+      const list = document.getElementById('history-list');
+      const clearBtn = document.getElementById('clear-history');
+
+      clearBtn.style.display = history.length ? 'block' : 'none';
+
+      if (!history.length) {
+        list.innerHTML = '<div class="history-empty">Nessun calcolo salvato</div>';
+        return;
+      }
+
+      list.innerHTML = history.map(item => `
+        <button type="button" class="history-item" onclick="loadHistoryItem(${item.id})">
+          <div class="history-title">
+            <span class="history-name">${escapeHTML(item.nome || 'Senza nome')}</span>
+            <span class="history-total">${fmtE(item.finale)}</span>
+          </div>
+          <div class="history-meta">
+            ${formatDate(item.createdAt)} · ${metalLabel(item.metallo)} · Cera ${fmtG(item.cera)} · Metallo ${fmtG(item.pm)}
+          </div>
+        </button>
+      `).join('');
+    }
+
+    renderHistory();
+  </script>
+</body>
+</html>
