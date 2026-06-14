@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calcolatore Gioielleria</title>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <link rel="icon" type="image/png" href="assets/favicon-ring-leaf.png" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -26,20 +28,12 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 2rem 1rem;
     }
 
     .card {
       background: var(--surface);
       border-radius: var(--radius);
       border: 0.5px solid var(--border);
-      padding: 2rem;
-      width: 100%;
-      max-width: 480px;
     }
 
     h1 {
@@ -182,7 +176,6 @@
 
     .results-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
 
@@ -194,7 +187,6 @@
 
     .metric.highlight {
       background: var(--accent-bg);
-      grid-column: span 2;
     }
 
     .metric .mlabel {
@@ -392,138 +384,178 @@
       color: var(--text3);
       text-align: center;
     }
+
+    @media (max-width: 420px) {
+      .formula-row {
+        gap: 4px;
+        font-size: 12px;
+      }
+
+      .metric {
+        padding: 11px 12px;
+      }
+
+      .metric .mval {
+        font-size: 18px;
+      }
+
+      .metric.highlight .mval {
+        font-size: 22px;
+      }
+
+      .history-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .history-total {
+        white-space: normal;
+      }
+
+      .footer {
+        line-height: 1.5;
+      }
+    }
   </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="card">
-    <h1>Calcolatore Gioielleria</h1>
-    <p class="subtitle">Inserisci il prezzo dal sito Kitco</p>
+<body class="min-h-screen bg-[var(--bg)] text-[var(--text)] flex items-start justify-center px-3 py-3 sm:px-4 sm:py-8 lg:px-6 lg:py-10">
+  <div class="card w-full max-w-[480px] p-4 sm:p-8 lg:max-w-5xl lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,400px)] lg:gap-x-8">
+    <main class="min-w-0">
+      <h1>Calcolatore Gioielleria</h1>
+      <p class="subtitle">Inserisci il prezzo dal sito Kitco</p>
 
-    <p class="section-label">Metallo</p>
-    <div class="metal-tabs">
-      <button class="tab active" onclick="setMetal('ottone', this)">Ottone</button>
-      <button class="tab" onclick="setMetal('argento', this)">Argento</button>
-      <button class="tab" onclick="setMetal('oro', this)">Oro</button>
-    </div>
+      <p class="section-label">Metallo</p>
+      <div class="metal-tabs">
+        <button class="tab active min-h-10 px-2" onclick="setMetal('ottone', this)">Ottone</button>
+        <button class="tab min-h-10 px-2" onclick="setMetal('argento', this)">Argento</button>
+        <button class="tab min-h-10 px-2" onclick="setMetal('oro', this)">Oro</button>
+      </div>
 
-    <div class="field">
-      <label for="nome-pezzo">Nome pezzo</label>
-      <input type="text" id="nome-pezzo" placeholder="es. Anello chevalier" autocomplete="off" oninput="calc()" />
-    </div>
-
-    <div class="field">
-      <label for="peso-cera">Peso cera (g)</label>
-      <input type="number" id="peso-cera" placeholder="es. 5.20" step="0.01" min="0" inputmode="decimal" oninput="calc()" />
-    </div>
-
-    <div class="field">
-      <label for="costo-grammo">Costo metallo (€/g) <span>— valore Ask da Kitco</span></label>
-      <input type="number" id="costo-grammo" placeholder="es. 0.850" step="0.001" min="0" inputmode="decimal" oninput="calc()" />
-    </div>
-
-    <hr class="divider" />
-
-    <div id="results-area" style="display:none">
-      <p class="section-label">Calcoli</p>
-      <div class="formula-box">
-        <div id="piece-name-result" class="piece-name" style="display:none"></div>
-        <div class="formula-row">
-          <span>Peso metallo</span><span class="op">=</span>
-          <span id="f-cera" class="val">—</span>
-          <span class="op">×</span>
-          <span id="f-molt" class="val">—</span>
-          <span class="op">=</span>
-          <span id="f-pm" class="val">—</span>
+      <div class="grid gap-0 sm:grid-cols-2 sm:gap-x-3">
+        <div class="field sm:col-span-2">
+          <label for="nome-pezzo">Nome pezzo</label>
+          <input type="text" id="nome-pezzo" placeholder="es. Anello chevalier" autocomplete="off" oninput="calc()" />
         </div>
-        <div class="formula-row">
-          <span>Costo fuso</span><span class="op">=</span>
-          <span id="f-pm2" class="val">—</span>
-          <span class="op">×</span>
-          <span id="f-cg" class="val">—</span>
-          <span class="op">=</span>
-          <span id="f-fuso" class="val">—</span>
+
+        <div class="field">
+          <label for="peso-cera">Peso cera (g)</label>
+          <input type="number" id="peso-cera" placeholder="es. 5.20" step="0.01" min="0" inputmode="decimal" oninput="calc()" />
         </div>
-        <div class="formula-row">
-          <span>Manodopera</span><span class="op">=</span>
-          <span id="f-pm3" class="val">—</span>
-          <span class="op">×</span>
-          <span class="val">0,40 €/g</span>
-          <span class="op">=</span>
-          <span id="f-mano" class="val">—</span>
-        </div>
-        <div class="formula-row total">
-          <span>Costo finale</span><span class="op">=</span>
-          <span id="f-fuso2" class="val">—</span>
-          <span class="op">+</span>
-          <span id="f-mano2" class="val">—</span>
-          <span class="op">=</span>
-          <span id="f-finale" class="result">—</span>
+
+        <div class="field">
+          <label for="costo-grammo">Costo metallo (€/g) <span class="block sm:inline">— valore Ask da Kitco</span></label>
+          <input type="number" id="costo-grammo" placeholder="es. 0.850" step="0.001" min="0" inputmode="decimal" oninput="calc()" />
         </div>
       </div>
 
-      <div class="results-grid">
-        <div class="metric">
-          <div class="mlabel">Peso metallo</div>
-          <div class="mval" id="r-pm">—</div>
+      <hr class="divider" />
+
+      <div id="results-area" style="display:none">
+        <p class="section-label">Calcoli</p>
+        <div class="formula-box">
+          <div id="piece-name-result" class="piece-name" style="display:none"></div>
+          <div class="formula-row">
+            <span>Peso metallo</span><span class="op">=</span>
+            <span id="f-cera" class="val">—</span>
+            <span class="op">×</span>
+            <span id="f-molt" class="val">—</span>
+            <span class="op">=</span>
+            <span id="f-pm" class="val">—</span>
+          </div>
+          <div class="formula-row">
+            <span>Costo fuso</span><span class="op">=</span>
+            <span id="f-pm2" class="val">—</span>
+            <span class="op">×</span>
+            <span id="f-cg" class="val">—</span>
+            <span class="op">=</span>
+            <span id="f-fuso" class="val">—</span>
+          </div>
+          <div class="formula-row">
+            <span>Manodopera</span><span class="op">=</span>
+            <span id="f-pm3" class="val">—</span>
+            <span class="op">×</span>
+            <span class="val">0,40 €/g</span>
+            <span class="op">=</span>
+            <span id="f-mano" class="val">—</span>
+          </div>
+          <div class="formula-row total">
+            <span>Costo finale</span><span class="op">=</span>
+            <span id="f-fuso2" class="val">—</span>
+            <span class="op">+</span>
+            <span id="f-mano2" class="val">—</span>
+            <span class="op">=</span>
+            <span id="f-finale" class="result">—</span>
+          </div>
         </div>
-        <div class="metric">
-          <div class="mlabel">Costo fuso</div>
-          <div class="mval" id="r-fuso">—</div>
+
+        <div class="results-grid grid-cols-1 min-[360px]:grid-cols-2">
+          <div class="metric min-w-0">
+            <div class="mlabel">Peso metallo</div>
+            <div class="mval break-words" id="r-pm">—</div>
+          </div>
+          <div class="metric min-w-0">
+            <div class="mlabel">Costo fuso</div>
+            <div class="mval break-words" id="r-fuso">—</div>
+          </div>
+          <div class="metric min-w-0">
+            <div class="mlabel">Manodopera</div>
+            <div class="mval break-words" id="r-mano">—</div>
+          </div>
+          <div class="metric highlight min-w-0 min-[360px]:col-span-2">
+            <div class="mlabel">Costo finale</div>
+            <div class="mval break-words" id="r-finale">—</div>
+          </div>
         </div>
-        <div class="metric">
-          <div class="mlabel">Manodopera</div>
-          <div class="mval" id="r-mano">—</div>
-        </div>
-        <div class="metric highlight">
-          <div class="mlabel">Costo finale</div>
-          <div class="mval" id="r-finale">—</div>
+
+        <div class="actions">
+          <button type="button" class="primary-btn min-h-11" onclick="saveHistory()">Salva nello storico</button>
         </div>
       </div>
 
-      <div class="actions">
-        <button type="button" class="primary-btn" onclick="saveHistory()">Salva nello storico</button>
+      <div id="placeholder" class="placeholder">
+        Inserisci peso e costo per calcolare
       </div>
-    </div>
+    </main>
 
-    <div id="placeholder" class="placeholder">
-      Inserisci peso e costo per calcolare
-    </div>
-
-    <div class="history">
-      <div class="history-head">
-        <p class="section-label">Storico ultimi 20</p>
-        <button type="button" id="clear-history" onclick="clearHistory()" style="display:none">Svuota</button>
+    <aside class="min-w-0 lg:border-l lg:border-[var(--border)] lg:pl-8">
+      <div class="history lg:mt-0">
+        <div class="history-head">
+          <p class="section-label">Storico ultimi 20</p>
+          <button type="button" id="clear-history" onclick="clearHistory()" style="display:none">Svuota</button>
+        </div>
+        <div id="history-list" class="history-list"></div>
       </div>
-      <div id="history-list" class="history-list"></div>
-    </div>
 
-    <div class="calculator">
-      <p class="section-label">Calcolatrice</p>
-      <div id="calc-display" class="calc-display">0</div>
-      <div class="calc-keys">
-        <button type="button" class="calc-key muted" onclick="calculatorClear()">AC</button>
-        <button type="button" class="calc-key muted" onclick="calculatorBackspace()">⌫</button>
-        <button type="button" class="calc-key muted" onclick="calculatorPercent()">%</button>
-        <button type="button" class="calc-key operator" onclick="calculatorChoose('/')">÷</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('7')">7</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('8')">8</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('9')">9</button>
-        <button type="button" class="calc-key operator" onclick="calculatorChoose('*')">×</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('4')">4</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('5')">5</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('6')">6</button>
-        <button type="button" class="calc-key operator" onclick="calculatorChoose('-')">−</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('1')">1</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('2')">2</button>
-        <button type="button" class="calc-key" onclick="calculatorInput('3')">3</button>
-        <button type="button" class="calc-key operator" onclick="calculatorChoose('+')">+</button>
-        <button type="button" class="calc-key wide" onclick="calculatorInput('0')">0</button>
-        <button type="button" class="calc-key" onclick="calculatorDecimal()">,</button>
-        <button type="button" class="calc-key operator" onclick="calculatorEquals()">=</button>
+      <div class="calculator">
+        <p class="section-label">Calcolatrice</p>
+        <div id="calc-display" class="calc-display text-[26px] sm:text-[30px]">0</div>
+        <div class="calc-keys">
+          <button type="button" class="calc-key muted" onclick="calculatorClear()">AC</button>
+          <button type="button" class="calc-key muted" onclick="calculatorBackspace()">⌫</button>
+          <button type="button" class="calc-key muted" onclick="calculatorPercent()">%</button>
+          <button type="button" class="calc-key operator" onclick="calculatorChoose('/')">÷</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('7')">7</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('8')">8</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('9')">9</button>
+          <button type="button" class="calc-key operator" onclick="calculatorChoose('*')">×</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('4')">4</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('5')">5</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('6')">6</button>
+          <button type="button" class="calc-key operator" onclick="calculatorChoose('-')">−</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('1')">1</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('2')">2</button>
+          <button type="button" class="calc-key" onclick="calculatorInput('3')">3</button>
+          <button type="button" class="calc-key operator" onclick="calculatorChoose('+')">+</button>
+          <button type="button" class="calc-key wide" onclick="calculatorInput('0')">0</button>
+          <button type="button" class="calc-key" onclick="calculatorDecimal()">,</button>
+          <button type="button" class="calc-key operator" onclick="calculatorEquals()">=</button>
+        </div>
       </div>
-    </div>
+    </aside>
 
-    <p class="footer">Manodopera fissa: 0,40 €/g &nbsp;·&nbsp; Ottone ×10 &nbsp;·&nbsp; Argento ×10,8 &nbsp;·&nbsp; Oro ×16,5</p>
+    <p class="footer lg:col-span-2">Manodopera fissa: 0,40 €/g &nbsp;·&nbsp; Ottone ×10 &nbsp;·&nbsp; Argento ×10,8 &nbsp;·&nbsp; Oro ×16,5</p>
   </div>
 
   <script>
